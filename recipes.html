@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipes</title>
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="script.js" defer></script>
+</head>
+<body onload="addRecipes()">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light px-3 sticky-top">
+        
+        <ul class="nav nav-pills flex-grow-1 justify-content-center">
+            <li class="nav-item">
+                <a class="nav-link" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="pantry.html">Pantry</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active rounded-pill" aria-current="page" href="recipes.html">Recipes</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="savedrecipes.html">Saved</a>
+            </li>
+        </ul>
+    </nav>
+    
+    <div class="bg pt-5 pb-3">
+        <div class="container">
+            <h1 class="mb-4">Recipes</h1>
+            <div class="input-group">
+                <input type="text" id="recipe-search-input" class="form-control" placeholder="Enter a search term" aria-label="Enter a search term">
+            </div>
+            
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-3 mt-3">
+                <p class="mb-2"><i class="bi bi-filter"></i> Search by:</p>
+                <button id="recipe-search-button" type="button" class="btn btn-secondary rounded-pill recipe-filter-option" data-recipe-filter="name" aria-pressed="false">Name</button>
+                <button id="recipe-filter-ingredient" type="button" class="btn btn-secondary rounded-pill recipe-filter-option" data-recipe-filter="ingredient" aria-pressed="false">Ingredient</button>
+                <button id="recipe-filter-category" type="button" class="btn btn-secondary rounded-pill recipe-filter-option" data-recipe-filter="category" aria-pressed="false">Category</button>
+                <button id="recipe-filter-country" type="button" class="btn btn-secondary rounded-pill recipe-filter-option" data-recipe-filter="country" aria-pressed="false">Country</button>
+            </div>
+            <div id="recipe-cards-grid" class="row mt-3">
+            
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

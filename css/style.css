@@ -1,0 +1,22 @@
+:root {
+  --default-font: "Roboto",  system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --heading-font: "Questrial",  sans-serif;
+  --nav-font: "Noto Sans",  sans-serif;
+}
+
+.recipe-filter-option {
+  --bs-btn-color: var(--bs-secondary-color);
+  --bs-btn-hover-color: #fff;
+}
+
+#save-recipe-button:not(.active):hover {
+  background-color: transparent;
+  color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+
+#save-recipe-button.active:hover {
+  background-color: var(--bs-primary);
+  color: #fff;
+  border-color: var(--bs-primary);
+}
