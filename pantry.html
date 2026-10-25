@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>Pantry</title>
     <link rel="stylesheet" href="css/bootstrap.css">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
@@ -30,29 +30,40 @@
 
     <section class="container mt-4">
         <h1 class="mb-4 text-center">Pantry</h1>
-        <div class="text-center">
-           
-        </div>
-
-        <!-- <div class="card">
-            <div class="card-body" id="pantry-content">
-                <h4 class="card-title">Ingredients</h4>
-                <p class="card-subtitle pantry-subtitle"></p>
-
-                <div class="input-group">
-                    <input type="text" id="pantry-ingredient-input" class="form-control" placeholder="New ingredient" aria-label="New ingredient">
-                    <button id="add-pantry-ingredient-button" type="button" class="btn btn-primary">
-                        <i class="bi bi-plus-lg"></i> Add
-                    </button>
-                </div>
-
-                <div class="pantry-list-wrapper">
-                    <ul class="list-group mb-3" id="pantry-ingredient-list">
-                        <!- ingredients get added here ->
-                    </ul>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h4 class="card-title">Add an ingredient</h4>
+                        <form id="pantry-ingredient-form">
+                            <div class="mb-3">
+                                <label for="pantry-ingredient-input" class="form-label">Ingredient</label>
+                                <input type="text" id="pantry-ingredient-input" class="form-control" list="pantry-ingredient-options" placeholder="Start typing an ingredient" autocomplete="off" required>
+                                <datalist id="pantry-ingredient-options"></datalist>
+                            </div>
+                            <div class="mb-3">
+                                <label for="pantry-expiry-input" class="form-label">Expiry date</label>
+                                <input type="date" id="pantry-expiry-input" class="form-control" required>
+                            </div>
+                            <button id="add-pantry-ingredient-button" type="submit" class="btn btn-primary" disabled>
+                                <i class="bi bi-plus-lg"></i> Add to pantry
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div> -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h4 class="card-title">My ingredients</h4>
+                        <p id="pantry-message" class="mb-3" role="status" aria-live="polite"></p>
+                        <ul class="list-group" id="pantry-ingredient-list" aria-live="polite">
+                            <li class="list-group-item">Your pantry is empty.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 </body>
 </html>

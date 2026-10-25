@@ -289,45 +289,116 @@ function addSavedRecipes(){
 
 //------------------------------Pantry------------------------------
 
-let pantry = []; // array of { name, checked }
-
+let pantry = [];
 const pantryIngredientList = document.getElementById("pantry-ingredient-list");
 const pantryIngredientInput = document.getElementById("pantry-ingredient-input");
+const pantryExpiryInput = document.getElementById("pantry-expiry-input");
 const addPantryIngredientButton = document.getElementById("add-pantry-ingredient-button");
+const pantryIngredientForm = document.getElementById("pantry-ingredient-form");
+const pantryIngredientOptions = document.getElementById("pantry-ingredient-options");
+const pantryMessage = document.getElementById("pantry-message");
 
-// only run on pages that have the pantry (script.js is shared)
-if (pantryIngredientList && pantryIngredientInput && addPantryIngredientButton) {
-    addPantryIngredientButton.addEventListener("click", addIngredient);
-
+if (pantryIngredientList && pantryIngredientInput && pantryExpiryInput &&
+    addPantryIngredientButton && pantryIngredientForm && pantryIngredientOptions &&
+    pantryMessage) {
+    pantryIngredientForm.addEventListener("submit", addIngredient);
     loadPantry();
     displayPantry();
+    loadAvailablePantryIngredients();
 }
 
-function addIngredient() {
-    const text = pantryIngredientInput.value.trim();
-    if (text === "") return;
+async function loadAvailablePantryIngredients() {
+    try {
+        const response = await fetch("https://www.themealdb.com/api/json/v1/1/list.php?i=list");
+        if (!response.ok) {
+            throw new Error(`Ingredient request failed with status ${response.status}.`);
+        }
 
-    pantry.push({ name: text, checked: false });
-    pantryIngredientInput.value = "";
+        const data = await response.json();
+        if (!Array.isArray(data.meals)) {
+            throw new Error("The ingredient API returned an invalid response.");
+        }
+
+        const ingredients = data.meals
+            .map(item => item.strIngredient)
+            .filter(name => typeof name === "string" && name.trim() !== "");
+        if (ingredients.length === 0) {
+            throw new Error("The ingredient API did not return any ingredients.");
+        }
+
+        pantryIngredientOptions.innerHTML = "";
+        ingredients.forEach(name => {
+            const option = document.createElement("option");
+            option.value = name;
+            pantryIngredientOptions.appendChild(option);
+        });
+
+        addPantryIngredientButton.disabled = false;
+    } catch (error) {
+        console.error("Could not load pantry ingredients:", error);
+        pantryMessage.textContent = "Could not load ingredients. Please refresh to try again.";
+    }
+}
+
+function addIngredient(event) {
+    event.preventDefault();
+    const selectedName = pantryIngredientInput.value.trim();
+    const ingredientOption = Array.from(pantryIngredientOptions.options)
+        .find(option => option.value.toLowerCase() === selectedName.toLowerCase());
+
+    if (!ingredientOption) {
+        pantryMessage.textContent = "Choose an ingredient from the API suggestions.";
+        pantryIngredientInput.focus();
+        return;
+    }
+
+    if (!pantryExpiryInput.value) {
+        pantryExpiryInput.focus();
+        return;
+    }
+
+    pantry.push({ name: ingredientOption.value, expiryDate: pantryExpiryInput.value });
+    try {
+        savePantry();
+    } catch (error) {
+        pantry.pop();
+        console.error("Could not save pantry:", error);
+        pantryMessage.textContent = "Could not save your pantry. Please check your browser storage settings.";
+        return;
+    }
+
+    pantryIngredientForm.reset();
     pantryIngredientInput.focus();
-
-    savePantry();
+    pantryMessage.textContent = "";
     displayPantry();
-}
-
-function savePantry() {
-    localStorage.setItem("pantry", JSON.stringify(pantry));
 }
 
 function loadPantry() {
     const saved = localStorage.getItem("pantry");
-    if (saved !== null) {
-        try {
-            pantry = JSON.parse(saved);
-        } catch (e) {
-            pantry = [];
-        }
+    if (saved === null) {
+        return;
     }
+
+    try {
+        const parsed = JSON.parse(saved);
+        if (!Array.isArray(parsed) || parsed.some(item =>
+            !item || typeof item.name !== "string" ||
+            (item.expiryDate !== undefined && typeof item.expiryDate !== "string")
+        )) {
+            throw new Error("Saved pantry data has an invalid format.");
+        }
+        pantry = parsed.map(item => ({
+            name: item.name,
+            expiryDate: item.expiryDate || ""
+        }));
+    } catch (error) {
+        console.error("Could not read saved pantry:", error);
+        pantryMessage.textContent = "Could not read your saved pantry. Additions may replace invalid saved data.";
+    }
+}
+
+function savePantry() {
+    localStorage.setItem("pantry", JSON.stringify(pantry));
 }
 
 function displayPantry() {
@@ -335,27 +406,46 @@ function displayPantry() {
 
     pantry.forEach((item, i) => {
         const li = document.createElement("li");
-        li.className = "list-group-item";
+        li.className = "list-group-item d-flex justify-content-between align-items-center gap-3";
 
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.id = "ingredient-" + i;
-        checkbox.className = "pantry-ingredient-checkbox me-2";
-        checkbox.checked = item.checked;
-        checkbox.addEventListener("change", () => {
-            pantry[i].checked = checkbox.checked;
-            savePantry();
+        const details = document.createElement("div");
+        const name = document.createElement("strong");
+        name.textContent = item.name;
+        const expiry = document.createElement("div");
+        expiry.className = "small text-muted";
+        expiry.textContent = item.expiryDate
+            ? `Expires ${new Date(`${item.expiryDate}T00:00:00`).toLocaleDateString()}`
+            : "Expiry date not recorded";
+        details.append(name, expiry);
+
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.className = "btn btn-outline-danger btn-sm flex-shrink-0";
+        removeButton.setAttribute("aria-label", `Remove ${item.name}`);
+        removeButton.innerHTML = '<i class="bi bi-trash"></i>';
+        removeButton.addEventListener("click", () => {
+            const removedItem = pantry.splice(i, 1)[0];
+            try {
+                savePantry();
+                displayPantry();
+                pantryMessage.textContent = "";
+            } catch (error) {
+                pantry.splice(i, 0, removedItem);
+                console.error("Could not save pantry:", error);
+                pantryMessage.textContent = "Could not update your pantry. Please check your browser storage settings.";
+            }
         });
 
-        const label = document.createElement("label");
-        label.htmlFor = checkbox.id;
-        label.textContent = item.name;
-
-        li.append(checkbox, label);
+        li.append(details, removeButton);
         pantryIngredientList.appendChild(li);
     });
+
+    if (pantry.length === 0) {
+        const emptyMessage = document.createElement("li");
+        emptyMessage.className = "list-group-item text-muted";
+        emptyMessage.textContent = "Your pantry is empty.";
+        pantryIngredientList.appendChild(emptyMessage);
+    }
 }
 
-function removeIngredient(){
-    
-}
+
