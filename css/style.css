@@ -11,12 +11,12 @@
 
 #save-recipe-button:not(.active):hover {
   background-color: transparent;
-  color: var(--bs-primary);
-  border-color: var(--bs-primary);
+  color: #FF665C;
+  border-color: #FF665C;
 }
 
 #save-recipe-button.active:hover {
-  background-color: var(--bs-primary);
+  background-color: #FF665C;
   color: #fff;
-  border-color: var(--bs-primary);
+  border-color: #FF665C;
 }
